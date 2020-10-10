@@ -33,7 +33,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'c6i0vl1+lhyr2i)e-tz4ve&f=bji&bd3q9#$*!4!r%n-jd0d#7'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
@@ -51,7 +51,12 @@ INSTALLED_APPS = [
     "corsheaders",
     "channels",
     "rest_framework",
-    "ws"
+]
+
+INSTALLED_APPS += [
+    "game",
+    "management",
+    "ws",
 ]
 
 MIDDLEWARE = [
@@ -81,6 +86,10 @@ TEMPLATES = [
         },
     },
 ]
+STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 WSGI_APPLICATION = 'gamejam.wsgi.application'
 
