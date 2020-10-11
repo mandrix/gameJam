@@ -5,6 +5,7 @@ from channels.generic.websocket import WebsocketConsumer, AsyncWebsocketConsumer
 from django.contrib.auth.models import User
 from django.db.models import Q
 
+from management.serializer import GroupOfCards
 from ws.models import Session
 
 
@@ -15,8 +16,9 @@ def get_user(_id):
 
 class CommunicationConsumer(AsyncWebsocketConsumer):
     def __init__(self, *args, **kwargs):
+        self.user = None
         self.user_id = None
-        self.oponent_id = None
+        self.opponent_id = None
         self.session = None
         self.user1 = None
         super().__init__(*args, **kwargs)
@@ -29,17 +31,22 @@ class CommunicationConsumer(AsyncWebsocketConsumer):
         # await self.add_to_session()
         user = await get_user(self.user_id)
         user = user.first()
+        self.user = user
+
+        Session.objects.filter(
+            Q(user1_id=self.user_id) | Q(user2_id=self.user_id)
+        ).delete()
+
         if user:
-            if not (session := Session.objects.filter(user1_id=user.id)):
-                if session := Session.objects.filter(user2=None).first():
-                    session.user2 = user
-                    session.save()
-                    self.user1 = False
-                else:
-                    session = Session.objects.create(
-                        user1=user
-                    )
-                    self.user1 = True
+            if session := Session.objects.filter(user2=None).first():
+                session.user2 = user
+                session.save()
+                self.user1 = False
+            else:
+                session = Session.objects.create(
+                    user1=user
+                )
+                self.user1 = True
             self.session = session
 
         else:
@@ -48,14 +55,14 @@ class CommunicationConsumer(AsyncWebsocketConsumer):
 
     # async def add_to_session(self):
 
-    def disconnect(self, close_code):
+    async def disconnect(self, close_code):
         # Leave room group
         if session := Session.objects.filter(
                 Q(user1_id=self.user_id) | Q(user2_id=self.user_id)
         ).first():
             session.delete()
-        async_to_sync(self.channel_layer.group_discard)(
-            "1", self.channel_name
+        await self.channel_layer.group_discard(
+            self.user_id, self.channel_name
         )
 
     # Receive message from WebSocket
@@ -66,11 +73,21 @@ class CommunicationConsumer(AsyncWebsocketConsumer):
             session = Session.objects.filter(
                 Q(user1_id=self.user_id) | Q(user2_id=self.user_id)
             ).first()
+            player_serializer = GroupOfCards(self.user.deck)
             if session.user1 and session.user2:
-                opponent = str(session.user1.username if not self.user1 else session.user2.username)
+                opponent = session.user1 if not self.user1 else session.user2
+                self.opponent_id = opponent.pk
+                opponent_serializer = GroupOfCards(opponent.deck)
                 await self.channel_layer.group_send(
                     self.user_id, {
-                        "opponent": opponent,
+                        "opponent": {
+                            "name": opponent.username,
+                            "deck": opponent_serializer.data
+                        },
+                        "player": {
+                            "name": self.user.username,
+                            "deck": player_serializer.data
+                        },
                         "type": "action"
                     }
                 )
@@ -78,10 +95,13 @@ class CommunicationConsumer(AsyncWebsocketConsumer):
                 await self.channel_layer.group_send(
                     self.user_id, {
                         "opponent": "Not found",
+                        "player": {
+                            "name": self.user.username,
+                            "deck": player_serializer.data
+                        },
                         "type": "action"
                     }
                 )
-
 
             # async_to_sync(self.channel_layer.group_send)(
             #     "1", text_data_json

@@ -5,9 +5,7 @@ from game.models import Deck
 from game.serializer import Cardserializer
 
 
-
 class UserSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = User
         fields = '__all__'
@@ -18,5 +16,5 @@ class UserSerializer(serializers.ModelSerializer):
         return instance
 
 
-class ObtainedCards(serializers.Serializer):
+class GroupOfCards(serializers.Serializer):
     cards = Cardserializer(many=True)
