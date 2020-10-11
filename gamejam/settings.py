@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+
+import django_heroku
 from corsheaders.defaults import default_methods, default_headers
 from django.contrib import admin
 import environ
@@ -148,3 +150,5 @@ CHANNEL_LAYERS = {
         "CONFIG": {"hosts": [env("REDIS_URL")], },
     },
 }
+
+django_heroku.settings(locals())
