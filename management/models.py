@@ -1,3 +1,5 @@
+import uuid
+
 from django.db import models
 from game.models import Card
 
@@ -18,7 +20,7 @@ class Location(models.Model):
     this place will have a unique province
     place where any cards will be
     """
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
     cards = models.ManyToManyField(Card, blank=True)
     province = models.OneToOneField(
         Province, on_delete=models.CASCADE, related_name="province"

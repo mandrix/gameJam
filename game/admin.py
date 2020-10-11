@@ -1,8 +1,8 @@
 from django.contrib import admin
-from game.models import Card
+from game.models import Card, Deck
+
+
 # Register your models here.
 
-class CardAdmin(admin.ModelAdmin):
-    model = Card
-
-admin.register(Card, CardAdmin)
+admin.site.register(Card)
+admin.site.register(Deck)

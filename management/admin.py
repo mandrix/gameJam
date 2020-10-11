@@ -11,6 +11,5 @@ class LocationAdmin(admin.ModelAdmin):
 class ProvinceAdmin(admin.ModelAdmin):
     model = Province
 
-admin.register(Province, ProvinceAdmin)
-
-admin.register(Location, LocationAdmin)
+admin.site.register(Province, ProvinceAdmin)
+admin.site.register(Location, LocationAdmin)
