@@ -20,6 +20,10 @@ from game.models import (
 
 # Create your views here.
 
+class RegisterView(viewsets.ModelViewSet):
+    authentication_classes = []
+    permission_classes = []
+    serializer_class = UserSerializer
 
 class UserView(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
@@ -35,7 +39,7 @@ class OpenPack(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         if (id_user := request.user.id):
             user = User.objects.filter(id=id_user).first()
-            location = Location.objects.filter(name=request.data.get("name_qr")).first()
+            location = Location.objects.filter(name=request.data.get("code")).first()
             deck_normal = location.cards
             deck_legend = location.province.cards
             c = count(-3)

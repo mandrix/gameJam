@@ -1,5 +1,7 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
+
+from game.models import Deck
 from game.serializer import Cardserializer
 
 
@@ -12,6 +14,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         instance = self.Meta.model.objects.create_user(**validated_data)
+        Deck.objects.create(user=instance)
         return instance
 
 

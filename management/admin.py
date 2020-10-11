@@ -8,6 +8,8 @@ from management.models import (
 class LocationAdmin(admin.ModelAdmin):
     model = Location
 
+    readonly_fields = ("name",)
+
 class ProvinceAdmin(admin.ModelAdmin):
     model = Province
 
