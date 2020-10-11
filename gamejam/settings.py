@@ -19,7 +19,7 @@ import environ
 
 env = environ.Env(
     DEBUG=(bool, True),
-    CORS_ORIGIN_WHITELIST=(str, "http://localhost:3333,http://127.0.0.1:3333"),
+    CORS_ORIGIN_WHITELIST=(str, "http://localhost:3000,http://127.0.0.1:3000"),
     REDIS_URL=(str, "redis://127.0.0.1:6379"),
 )
 # reading .env file
@@ -65,6 +65,7 @@ INSTALLED_APPS += [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
