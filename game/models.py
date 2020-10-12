@@ -25,7 +25,7 @@ class Card(models.Model):
 
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=100)
-    img = models.ImageField(upload_to="game/")
+    img = models.URLField()
 
     rarity = models.CharField(
         max_length=3,
