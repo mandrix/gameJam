@@ -33,9 +33,11 @@ class CommunicationConsumer(AsyncWebsocketConsumer):
         user = user.first()
         self.user = user
 
-        Session.objects.filter(
-            Q(user1_id=self.user_id) | Q(user2_id=self.user_id)
-        ).delete()
+        if session := Session.objects.filter(
+                Q(user1_id=self.user_id) | Q(user2_id=self.user_id)
+        ):
+            if session.user2 and session.user1:
+                session.delete()
 
         if user:
             if session := Session.objects.filter(user2=None).first():
@@ -74,7 +76,7 @@ class CommunicationConsumer(AsyncWebsocketConsumer):
                 Q(user1_id=self.user_id) | Q(user2_id=self.user_id)
             ).first()
             player_serializer = GroupOfCards(self.user.deck)
-            if session.user1 and session.user2:
+            if session and session.user1 and session.user2:
                 opponent = session.user1 if not self.user1 else session.user2
                 self.opponent_id = opponent.pk
                 opponent_serializer = GroupOfCards(opponent.deck)

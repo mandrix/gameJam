@@ -24,6 +24,13 @@ class RegisterView(viewsets.ModelViewSet):
     authentication_classes = []
     permission_classes = []
     serializer_class = UserSerializer
+    queryset = User.objects.filter(is_active=True)
+
+    def create(self, request, *args, **kwargs):
+        if user := self.queryset.filter(username=request.data.get("username")).first():
+            user_serializer = self.serializer_class(instance=user)
+            return Response(user_serializer.data)
+        return super(RegisterView, self).create(request, *args, **kwargs)
 
 
 class UserView(viewsets.ModelViewSet):
